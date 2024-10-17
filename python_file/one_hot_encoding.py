@@ -11,6 +11,6 @@ x = token.texts_to_sequences([text])#토큰의 인덱스로만 이루어진 리�
 print(text)#원본 텍스트 출력
 print(f"{x}\n")#토큰의 인덱스로만 이루어진 리스트 출력
 
-word_size = len(token.word_index)+1
+word_size = len(token.word_index)+1#배열 앞에 0을 넣기 위해 +1
 x = to_categorical(x, num_classes=word_size)#원핫인코딩
 print(f"{x}\n")#원핫인코딩된 리스트 출력
