@@ -1,5 +1,5 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense,LSTM, Embedding
+from tensorflow.keras.layers import Dense, LSTM, Embedding
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras.datasets import reuters
