@@ -2,7 +2,7 @@ from pre_processing import data_preprocessing
 import pandas as pd
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM, Embedding
+from tensorflow.keras.layers import Dense, LSTM, Embedding,Dropout
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras.callbacks import EarlyStopping
@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #load data
-spma_ham  = data_preprocessing.combined_data()
+spma_ham  = data_preprocessing.combine_data()
 
 #change data type to numeric
 spma_ham['메일종류'] = spma_ham['메일종류'].map({'햄':0, '스팸':1})
@@ -32,35 +32,46 @@ print(f"X_test example : {X_test[:5]}")
 #tokenizing
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(X_train)
-tokenizer.fit_on_texts(X_test)
+
+
 X_train = tokenizer.texts_to_sequences(X_train)
 X_test = tokenizer.texts_to_sequences(X_test)
 
-
+print(f"X_train example : {X_train[:5]}")
+print(f"X_test example : {X_test[:5]}")
 print(f"Train set : {len(X_train)}")
 print(f"Test set : {len(X_test)}")
 print(f"X_train example \n:{X_train[0]}\n")#data example
 
 
 #padding - make all data to same length
-X_train = sequence.pad_sequences(X_train, maxlen=100)
-X_test = sequence.pad_sequences(X_test, maxlen=100)
+max_len = max(len(i) for i in X_train)
+X_train = sequence.pad_sequences(X_train, maxlen=max_len, padding='post', truncating='post')
+X_test = sequence.pad_sequences(X_test, maxlen=max_len, padding='post', truncating='post')
 
 #one-hot encoding
 y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
 
+# Vocabulary size
+vocab_size = len(tokenizer.word_index) + 1  # +1 for padding token
+#to check the size of vocabulary to use in embedding layer input_dim
+print(f"Vocabulary Size: {vocab_size}")
+
 #sturuucture of model
 model = Sequential()
-model.add(Embedding(1000, 100))
-model.add(LSTM(100, activation='tanh'))
+model.add(Embedding(input_dim = vocab_size,output_dim = 100, input_length=max_len))
+model.add(LSTM(100, activation='tanh',return_sequences=True))
+model.add(Dropout(0.5))
+model.add(LSTM(50, activation='tanh'))
 model.add(Dense(2, activation='softmax'))
+
 
 #compile
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 #early stopping
-early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+early_stopping = EarlyStopping(monitor='val_loss', patience=5,restore_best_weights=True)
 
 #train
 history = model.fit(X_train, y_train, batch_size=20, epochs=200, 

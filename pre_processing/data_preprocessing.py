@@ -1,10 +1,10 @@
 import pandas as pd
 import re
 
-def combined_data():
+def combine_data():
     # 데이터 불러오기
-    google_message = pd.read_csv("Rabble/datasets/messages.csv")
-    spam_message = pd.read_csv("Rabble/datasets/spam_virus.csv")
+    google_message = pd.read_csv("/Users/PROTEIN/Desktop/selfStudy/AI_practice/datasets/messages.csv")
+    spam_message = pd.read_csv("/Users/PROTEIN/Desktop/selfStudy/AI_practice/datasets/spam_virus.csv")
 
     selected_columns = google_message.iloc[:, [0, 1, 2]] 
 
@@ -49,5 +49,6 @@ def combined_data():
     combined_df = pd.concat([final_google_df, final_spam_df], axis=0, ignore_index=True)
 
     print(combined_df.head())
+    combined_df.to_csv('/Users/PROTEIN/Desktop/selfStudy/AI_practice/datasets/combined_data.csv', index=False, encoding='utf-8')
 
     return combined_df
